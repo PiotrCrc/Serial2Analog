@@ -16,28 +16,31 @@ byte AO_2_counter = 0;
 byte AO_3_counter = 0;
 
 void setup() {
-  // Enable Timer/Counter1 input capture interrupt
-  TIMSK1 |= (1 << TICIE1);
-  // Set Timer/Counter1 clock prescaler to 64
-  TCCR1B |= (1 << CS11) | (1 << CS10);
-  // Set Timer/Counter1 top value to 624 (256Hz)
-  OCR1A = 624;
-  // Initialize interrupt flag
-  TIFR1 |= (1 << ICF1);
-  // Enable global interrupts
-  sei();
-  
+// TIMER 1 for interrupt frequency 256 Hz:
+cli(); // stop interrupts
+TCCR1A = 0; // set entire TCCR1A register to 0
+TCCR1B = 0; // same for TCCR1B
+TCNT1  = 0; // initialize counter value to 0
+// set compare match register for 256 Hz increments
+OCR1A = 62499; // = 16000000 / (1 * 256) - 1 (must be <65536)
+// turn on CTC mode
+TCCR1B |= (1 << WGM12);
+// Set CS12, CS11 and CS10 bits for 1 prescaler
+TCCR1B |= (0 << CS12) | (0 << CS11) | (1 << CS10);
+// enable timer compare interrupt
+TIMSK1 |= (1 << OCIE1A);
+sei(); // allow interrupts
+
   pinMode(AO_PIN_0, OUTPUT);
-  digitalWrite(AO_PIN_0, False);
+  digitalWrite(AO_PIN_0, false);
   pinMode(AO_PIN_1, OUTPUT);
-  digitalWrite(AO_PIN_1, False);
+  digitalWrite(AO_PIN_1, false);
   pinMode(AO_PIN_2, OUTPUT);
-  digitalWrite(AO_PIN_2, False);
+  digitalWrite(AO_PIN_2, false);
   pinMode(AO_PIN_3, OUTPUT);
-  digitalWrite(AO_PIN_3, False);
+  digitalWrite(AO_PIN_3, false);
 
   Serial.begin(9600);
-  while (!Serial) continue;
   Serial.println("<Ready>");
 }
 
@@ -58,7 +61,7 @@ void loop() {
       Serial.print("A0: ");
       Serial.println(doc["A0"].as<byte>());
 
-      AO_1_value = doc["A1"].as<byte>();    
+      AO_1_value = doc["A1"].as<byte>();
       Serial.print("A1: ");
       Serial.println(doc["A1"].as<byte>());
   
@@ -66,7 +69,7 @@ void loop() {
       Serial.print("A2: ");
       Serial.println(doc["A2"].as<byte>());
 
-      AO_0_value =  doc["A3"].as<byte>();
+      AO_3_value =  doc["A3"].as<byte>();
       Serial.print("A3: ");
       Serial.println(doc["A3"].as<byte>());
     } 
@@ -77,20 +80,40 @@ void loop() {
       Serial.println(err.c_str());
   
       // Flush all bytes in the "link" serial port buffer
-      while (Serial.available() > 0)
+      while (Serial.available() > 0) {
         Serial.read();
+      }
     }
   }
 }
 
-ISR(TIMER1_CAPT_vect) {
-  // Timer/Counter1 input capture interrupt service routine
-  TIFR1 |= (1 << ICF1); // Clear interrupt flag
+ISR(TIMER1_COMPA_vect){
   if (AO_0_value > 0) {
     AO_0_counter++;
-    if (AO_0_counter > (255 - AO_0_value)) {
+    if (AO_0_counter > AO_0_value) {
       AO_0_counter = 0;
       digitalWrite(AO_PIN_0, !digitalRead(AO_PIN_0));
+    }
+  }
+  if (AO_1_value > 0) {
+    AO_1_counter++;
+    if (AO_1_counter > AO_1_value) {
+      AO_1_counter = 0;
+      digitalWrite(AO_PIN_1, !digitalRead(AO_PIN_1));
+    }
+  }
+  if (AO_2_value > 0) {
+    AO_2_counter++;
+    if (AO_2_counter > AO_2_value) {
+      AO_2_counter = 0;
+      digitalWrite(AO_PIN_2, !digitalRead(AO_PIN_2));
+    }
+  }
+  if (AO_3_value > 0) {
+    AO_3_counter++;
+    if (AO_3_counter > AO_3_value) {
+      AO_3_counter = 0;
+      digitalWrite(AO_PIN_3, !digitalRead(AO_PIN_3));
     }
   }
 }
