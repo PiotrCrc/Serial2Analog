@@ -5,15 +5,15 @@ const int AO_PIN_1 = 5;
 const int AO_PIN_2 = 6;
 const int AO_PIN_3 = 9;
 
-volatile byte AO_0_value = 0;
-volatile byte AO_1_value = 0;
-volatile byte AO_2_value = 0;
-volatile byte AO_3_value = 0;
+volatile int AO_0_value = 0;
+volatile int AO_1_value = 0;
+volatile int AO_2_value = 0;
+volatile int AO_3_value = 0;
 
-byte AO_0_counter = 0;
-byte AO_1_counter = 0;
-byte AO_2_counter = 0;
-byte AO_3_counter = 0;
+int AO_0_counter = 0;
+int AO_1_counter = 0;
+int AO_2_counter = 0;
+int AO_3_counter = 0;
 
 void setup() {
 // TIMER 1 for interrupt frequency 256 Hz:
@@ -22,7 +22,7 @@ TCCR1A = 0; // set entire TCCR1A register to 0
 TCCR1B = 0; // same for TCCR1B
 TCNT1  = 0; // initialize counter value to 0
 // set compare match register for 256 Hz increments
-OCR1A = 62499; // = 16000000 / (1 * 256) - 1 (must be <65536)
+OCR1A = 161; // = 16000000 / (1 * 256) - 1 (must be <65536)
 // turn on CTC mode
 TCCR1B |= (1 << WGM12);
 // Set CS12, CS11 and CS10 bits for 1 prescaler
@@ -57,21 +57,21 @@ void loop() {
     {
       // Print the values
       // (we must use as<T>() to resolve the ambiguity)
-      AO_0_value = doc["A0"].as<byte>();
+      AO_0_value = doc["0"].as<byte>();
       Serial.print("A0: ");
-      Serial.println(doc["A0"].as<byte>());
+      Serial.println(doc["0"].as<int>());
 
-      AO_1_value = doc["A1"].as<byte>();
+      AO_1_value = doc["1"].as<int>();
       Serial.print("A1: ");
-      Serial.println(doc["A1"].as<byte>());
+      Serial.println(doc["1"].as<int>());
   
-      AO_2_value = doc["A2"].as<byte>();
+      AO_2_value = doc["2"].as<int>();
       Serial.print("A2: ");
-      Serial.println(doc["A2"].as<byte>());
+      Serial.println(doc["2"].as<int>());
 
-      AO_3_value =  doc["A3"].as<byte>();
+      AO_3_value =  doc["3"].as<int>();
       Serial.print("A3: ");
-      Serial.println(doc["A3"].as<byte>());
+      Serial.println(doc["3"].as<byte>());
     } 
     else 
     {
