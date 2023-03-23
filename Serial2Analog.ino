@@ -57,7 +57,7 @@ void loop() {
     {
       // Print the values
       // (we must use as<T>() to resolve the ambiguity)
-      AO_0_value = doc["0"].as<byte>();
+      AO_0_value = doc["0"].as<int>();
       Serial.print("A0: ");
       Serial.println(doc["0"].as<int>());
 
@@ -71,7 +71,7 @@ void loop() {
 
       AO_3_value =  doc["3"].as<int>();
       Serial.print("A3: ");
-      Serial.println(doc["3"].as<byte>());
+      Serial.println(doc["3"].as<int>());
     } 
     else 
     {
@@ -83,37 +83,6 @@ void loop() {
       while (Serial.available() > 0) {
         Serial.read();
       }
-    }
-  }
-}
-
-ISR(TIMER1_COMPA_vect){
-  if (AO_0_value > 0) {
-    AO_0_counter++;
-    if (AO_0_counter > AO_0_value) {
-      AO_0_counter = 0;
-      digitalWrite(AO_PIN_0, !digitalRead(AO_PIN_0));
-    }
-  }
-  if (AO_1_value > 0) {
-    AO_1_counter++;
-    if (AO_1_counter > AO_1_value) {
-      AO_1_counter = 0;
-      digitalWrite(AO_PIN_1, !digitalRead(AO_PIN_1));
-    }
-  }
-  if (AO_2_value > 0) {
-    AO_2_counter++;
-    if (AO_2_counter > AO_2_value) {
-      AO_2_counter = 0;
-      digitalWrite(AO_PIN_2, !digitalRead(AO_PIN_2));
-    }
-  }
-  if (AO_3_value > 0) {
-    AO_3_counter++;
-    if (AO_3_counter > AO_3_value) {
-      AO_3_counter = 0;
-      digitalWrite(AO_PIN_3, !digitalRead(AO_PIN_3));
     }
   }
 }
